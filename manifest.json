@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Rapidex",
+  "version": "1.6",
+  "description": "Captura screenshots da área de transferência automaticamente",
+  "permissions": ["clipboardRead", "storage", "downloads", "unlimitedStorage", "tabs", "offscreen", "alarms", "nativeMessaging"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Rapidex"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+S",
+        "windows": "Alt+Shift+S"
+      },
+      "description": "Abrir Rapidex e capturar"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; object-src 'none';"
+  }
+}
