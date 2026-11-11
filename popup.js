@@ -13,6 +13,7 @@ function isValidCapture(c) {
 // ── State ─────────────────────────────────────────────────────────────────────
 let captures   = [];
 let selectedIds = new Set();
+let lastCheckedIdx = -1;
 let sortOrder  = 'newest';
 let currentId  = null;
 let armedTimer = null;
@@ -146,13 +147,6 @@ function render() {
     check.className = 'card-check';
     check.checked   = selectedIds.has(cap.id);
     check.setAttribute('aria-label', `Selecionar captura ${idx}`);
-    check.addEventListener('change', e => {
-      e.stopPropagation();
-      if (check.checked) selectedIds.add(cap.id); else selectedIds.delete(cap.id);
-      card.classList.toggle('selected', check.checked);
-      updateSelButtons();
-    });
-
     const bar = document.createElement('div');
     bar.className = 'card-bar';
     const spanTime = document.createElement('span');
@@ -174,9 +168,33 @@ function render() {
 
     delBtn.addEventListener('click', e => { e.stopPropagation(); deleteCapture(cap.id); });
 
-    // Sem seleção → abre lightbox; com seleção → togela card
+    check.addEventListener('change', e => {
+      e.stopPropagation();
+      if (check.checked) selectedIds.add(cap.id); else selectedIds.delete(cap.id);
+      card.classList.toggle('selected', check.checked);
+      lastCheckedIdx = i;
+      updateSelButtons();
+    });
+
+    // Sem seleção → abre lightbox; Shift → range select; com seleção → togela card
     card.addEventListener('click', e => {
-      if (e.target === check || e.target === delBtn) return;
+      if (e.target === delBtn) return;
+      if (e.target === check) return; // change listener cuida
+
+      if (e.shiftKey) {
+        if (lastCheckedIdx >= 0) {
+          const list = sorted();
+          const from = Math.min(lastCheckedIdx, i);
+          const to   = Math.max(lastCheckedIdx, i);
+          for (let j = from; j <= to; j++) selectedIds.add(list[j].id);
+          render();
+        } else {
+          check.checked = true;
+          check.dispatchEvent(new Event('change'));
+        }
+        return;
+      }
+
       if (selectedIds.size > 0) {
         check.checked = !check.checked;
         check.dispatchEvent(new Event('change'));
@@ -466,8 +484,10 @@ async function saveBlob(blob) {
 
 // ── Polling automático (roda enquanto popup está aberta) ──────────────────────
 let pollLastHash = null;
+let nativeActive = false; // desligado quando native host está ativo (evita dupla captura)
 
 async function pollClipboard() {
+  if (nativeActive) return;
   try {
     const items = await navigator.clipboard.read();
     for (const item of items) {
@@ -486,7 +506,6 @@ async function pollClipboard() {
 }
 
 setInterval(pollClipboard, 800);
-pollClipboard(); // checa imediatamente ao abrir
 
 // ── Botão manual — feedback de erro explícito ─────────────────────────────────
 document.getElementById('btnCapture').addEventListener('click', async () => {
@@ -513,6 +532,7 @@ document.getElementById('version').textContent = 'v' + chrome.runtime.getManifes
 
 chrome.storage.local.get(['nativeStatus'], r => {
   const s = r.nativeStatus || '';
+  nativeActive = s === 'ok';
   if (s === 'ok') setStatus(true, 'automático ativo');
   else if (s) setStatus(false, s.slice(0, 50));
   else setStatus(false, 'aguardando native host');
@@ -521,6 +541,7 @@ chrome.storage.local.get(['nativeStatus'], r => {
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'local' && changes.nativeStatus) {
     const s = changes.nativeStatus.newValue || '';
+    nativeActive = s === 'ok';
     if (s === 'ok') setStatus(true, 'automático ativo');
     else setStatus(false, s.slice(0, 50));
   }

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Rapidex",
-  "version": "1.8",
+  "version": "1.9",
   "description": "Captura screenshots da área de transferência automaticamente",
   "permissions": ["clipboardRead", "storage", "downloads", "unlimitedStorage", "tabs", "offscreen", "alarms", "nativeMessaging"],
   "action": {
