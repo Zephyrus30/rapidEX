@@ -83,7 +83,7 @@ function handleCapture(msg) {
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     const updated = [...captures, { id, src: msg.dataUrl, ts: new Date().toISOString() }]
       .slice(-MAX_CAPTURES);
-    chrome.storage.local.set({ captures: updated });
+    chrome.storage.local.set({ captures: updated, lastHash: msg.hash });
   });
 }
 
