@@ -79,7 +79,8 @@ function handleCapture(msg) {
   if (!isValidDataUrl(msg.dataUrl)) return;
   if (msg.hash === lastHash) return;
   lastHash = msg.hash;
-  chrome.storage.local.get(['captures'], ({ captures = [] }) => {
+  chrome.storage.local.get(['captures', 'lastHash'], ({ captures = [], lastHash: storedHash }) => {
+    if (storedHash === msg.hash) return; // já salva na sessão anterior
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     const updated = [...captures, { id, src: msg.dataUrl, ts: new Date().toISOString() }]
       .slice(-MAX_CAPTURES);
