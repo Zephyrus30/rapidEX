@@ -83,6 +83,10 @@ kbd {
 .grid { display: grid; grid-template-columns: repeat(var(--cols,3), 1fr); gap: 9px; }
 .col-ctrl { display: flex; align-items: center; gap: 5px; font: 11px Consolas, monospace; color: var(--muted); flex-shrink: 0; }
 .col-ctrl input[type=range] { width: 56px; accent-color: var(--accent); cursor: pointer; }
+.hdr-label { font: 11px Consolas, monospace; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+.hdr-label-group { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.btn-tab { background: transparent; border: 1px solid var(--border); color: var(--muted); display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 5px; cursor: pointer; font: 500 12px 'Segoe UI', sans-serif; white-space: nowrap; transition: border-color .12s, color .12s; }
+.btn-tab:hover { color: var(--fg); border-color: var(--bordhi); }
 .card {
   background: var(--card); border: 1px solid var(--border); border-radius: var(--r);
   overflow: hidden; cursor: zoom-in; transition: transform .13s, border-color .13s;
@@ -176,24 +180,38 @@ kbd {
   <div class="hdr-btns">
     <button class="btn btn-capture" id="btnCapture" title="Capturar da área de transferência">Capturar</button>
     <span class="hdr-sep"></span>
-    <button id="btnTab" title="Abrir em aba" style="background:transparent;border:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:4px;display:flex;align-items:center;" aria-label="Abrir em aba">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    <button class="btn-tab" id="btnTab" title="Abrir em aba completa" aria-label="Abrir em nova aba">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Nova aba
     </button>
     <span class="hdr-sep"></span>
     <div id="status"><div id="dot"></div><span id="statusTxt">aguardando</span></div>
     <span class="hdr-sep"></span>
-    <select id="sortSel">
-      <option value="newest">↓ Recente</option>
-      <option value="oldest">↑ Antiga</option>
-    </select>
-    <div class="col-ctrl" title="Colunas por linha">
+    <div class="hdr-label-group">
+      <span class="hdr-label">Ordenar por:</span>
+      <select id="sortSel">
+        <option value="newest">↓ Recente</option>
+        <option value="oldest">↑ Antiga</option>
+      </select>
+    </div>
+    <div class="col-ctrl">
+      <span class="hdr-label">Colunas por linha:</span>
       <span id="colsVal">3</span>
-      <input type="range" id="colsSlider" min="2" max="6" value="3">
+      <input type="range" id="colsSlider" min="2" max="6" value="3" title="Colunas por linha">
     </div>
     <span class="hdr-sep" id="sepSel" hidden></span>
-    <button class="btn btn-sel-dl"  id="btnSelDl"  hidden>Baixar (0)</button>
-    <button class="btn btn-sel-del" id="btnSelDel" hidden>Excluir (0)</button>
-    <button class="btn btn-sel-clr" id="btnSelClr" hidden title="Desmarcar tudo">&#x2715; seleção</button>
+    <button class="btn btn-sel-dl" id="btnSelDl" hidden>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Baixar (0)
+    </button>
+    <button class="btn btn-sel-del" id="btnSelDel" hidden>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      Excluir (0)
+    </button>
+    <button class="btn btn-sel-clr" id="btnSelClr" hidden>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Cancelar seleção
+    </button>
     <span class="hdr-sep"></span>
     <button class="btn btn-zip" id="btnZip" disabled>
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
