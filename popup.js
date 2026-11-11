@@ -179,9 +179,9 @@ function render() {
     // Sem seleção → abre lightbox; Shift → range select; com seleção → togela card
     card.addEventListener('click', e => {
       if (e.target === delBtn) return;
-      if (e.target === check) return; // change listener cuida
 
       if (e.shiftKey) {
+        if (e.target === check) e.preventDefault(); // evita toggle do checkbox
         if (lastCheckedIdx >= 0) {
           const list = sorted();
           const from = Math.min(lastCheckedIdx, i);
@@ -195,6 +195,7 @@ function render() {
         return;
       }
 
+      if (e.target === check) return; // change listener cuida
       if (selectedIds.size > 0) {
         check.checked = !check.checked;
         check.dispatchEvent(new Event('change'));
