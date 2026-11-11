@@ -12,6 +12,7 @@ function isValidCapture(c) {
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let captures   = [];
+let selectedIds = new Set();
 let sortOrder  = 'newest';
 let currentId  = null;
 let armedTimer = null;
@@ -72,6 +73,48 @@ function applyGridCols(n) {
 document.getElementById('colsSlider').addEventListener('input', e => applyGridCols(+e.target.value));
 applyGridCols(gridCols);
 
+// ── Seleção ───────────────────────────────────────────────────────────────────
+const btnSelDl  = document.getElementById('btnSelDl');
+const btnSelDel = document.getElementById('btnSelDel');
+
+function updateSelButtons() {
+  const n = selectedIds.size;
+  btnSelDl.hidden  = n === 0;
+  btnSelDel.hidden = n === 0;
+  btnSelDl.textContent  = `Baixar (${n})`;
+  btnSelDel.textContent = `Excluir (${n})`;
+}
+
+btnSelDel.addEventListener('click', () => {
+  captures = captures.filter(c => !selectedIds.has(c.id));
+  selectedIds.clear();
+  saveStorage();
+  render();
+  showToast('Capturas excluídas');
+});
+
+btnSelDl.addEventListener('click', async () => {
+  const toDownload = sorted().filter(c => selectedIds.has(c.id));
+  btnSelDl.disabled = true;
+  btnSelDl.textContent = 'Gerando…';
+  try {
+    if (toDownload.length === 1) {
+      const blob = await capToJpegBlob(toDownload[0].src);
+      triggerDownload(blob, `rapidex-${ts()}.jpg`);
+    } else {
+      const files = await Promise.all(toDownload.map(async (cap, i) => {
+        const blob = await capToJpegBlob(cap.src);
+        return { name: `captura-${String(i+1).padStart(2,'0')}.jpg`, data: new Uint8Array(await blob.arrayBuffer()) };
+      }));
+      triggerDownload(buildZip(files), `RAPIDEX-SELECIONADOS-${ts()}.zip`);
+    }
+    showToast(`${toDownload.length} imagem${toDownload.length !== 1 ? 's' : ''} baixada${toDownload.length !== 1 ? 's' : ''}`);
+    selectedIds.clear();
+    render();
+  } catch { showToast('Erro ao gerar arquivo'); }
+  finally { updateSelButtons(); btnSelDl.disabled = false; }
+});
+
 // ── Render ────────────────────────────────────────────────────────────────────
 function render() {
   gridEl.innerHTML = '';
@@ -80,6 +123,9 @@ function render() {
   btnClear.disabled = n === 0;
   btnZip.disabled   = n === 0;
   countEl.textContent = `${n} captura${n !== 1 ? 's' : ''}`;
+  // remove ids de capturas que não existem mais
+  for (const id of selectedIds) { if (!captures.find(c => c.id === id)) selectedIds.delete(id); }
+  updateSelButtons();
 
   sorted().forEach((cap, i) => {
     const idx  = i + 1;
@@ -87,12 +133,25 @@ function render() {
     card.className = 'card';
     card.tabIndex  = 0;
     card.setAttribute('role', 'button');
+    if (selectedIds.has(cap.id)) card.classList.add('selected');
 
     // DOM puro — sem innerHTML com dados do storage (evita XSS por storage tampering)
     const img = document.createElement('img');
     img.src     = cap.src;   // data: URL — atributo src nunca executa script
     img.alt     = `Captura ${idx}`;
     img.loading = 'lazy';
+
+    const check = document.createElement('input');
+    check.type      = 'checkbox';
+    check.className = 'card-check';
+    check.checked   = selectedIds.has(cap.id);
+    check.setAttribute('aria-label', `Selecionar captura ${idx}`);
+    check.addEventListener('change', e => {
+      e.stopPropagation();
+      if (check.checked) selectedIds.add(cap.id); else selectedIds.delete(cap.id);
+      card.classList.toggle('selected', check.checked);
+      updateSelButtons();
+    });
 
     const bar = document.createElement('div');
     bar.className = 'card-bar';
@@ -108,15 +167,23 @@ function render() {
     delBtn.setAttribute('aria-label', `Excluir captura ${idx}`);
     delBtn.textContent = '×';
 
+    card.appendChild(check);
     card.appendChild(img);
     card.appendChild(bar);
     card.appendChild(delBtn);
 
-    delBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      deleteCapture(cap.id);
+    delBtn.addEventListener('click', e => { e.stopPropagation(); deleteCapture(cap.id); });
+
+    // Sem seleção → abre lightbox; com seleção → togela card
+    card.addEventListener('click', e => {
+      if (e.target === check || e.target === delBtn) return;
+      if (selectedIds.size > 0) {
+        check.checked = !check.checked;
+        check.dispatchEvent(new Event('change'));
+      } else {
+        openLightbox(cap);
+      }
     });
-    card.addEventListener('click', () => openLightbox(cap));
     card.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(cap); }
     });
