@@ -2,7 +2,7 @@
 
 Extensão Chrome que captura screenshots automaticamente da área de transferência e os organiza em cards. Navegue, colete referências e elas aparecem na outra tela — sem interromper o fluxo.
 
-![versão](https://img.shields.io/badge/versão-1.6-5b8cf7) ![MV3](https://img.shields.io/badge/Manifest-v3-green) ![Windows](https://img.shields.io/badge/Windows-only_(native_host)-blue)
+![versão](https://img.shields.io/badge/versão-1.12-5b8cf7) ![MV3](https://img.shields.io/badge/Manifest-v3-green) ![Windows](https://img.shields.io/badge/Windows-only_(native_host)-blue)
 
 ---
 
@@ -20,10 +20,24 @@ Extensão Chrome que captura screenshots automaticamente da área de transferên
 - **Cards organizados** — grid com miniatura, data/hora e exclusão individual
 - **Colunas ajustáveis** — slider de 2 a 6 colunas, salvo entre sessões
 - **Lightbox com zoom** — scroll para zoom (até 8×), arrastar para mover, setas ← → para navegar entre capturas
+- **Seleção múltipla** — checkbox em cada card; Shift+click para selecionar um intervalo
+- **Ações em lote** — baixar seleção como JPG único ou ZIP, excluir em lote
 - **Download** — salvar card como JPG ou baixar todas as capturas em ZIP
 - **Status em tempo real** — indica se o monitoramento automático está ativo
 
 ![Status automático ativo](screenshots/status-ativo.png)
+
+---
+
+## Seleção múltipla
+
+![Seleção múltipla](screenshots/multiselect.png)
+
+- **Clique no checkbox** de um card para selecioná-lo (aparece ao passar o mouse)
+- **Shift+click** em outro card seleciona todo o intervalo entre os dois
+- Com cards selecionados, clicar no corpo do card também alterna a seleção
+- **Baixar (n)** — baixa os selecionados: 1 card → JPG, vários → ZIP
+- **Excluir (n)** — remove todos os selecionados de uma vez
 
 ---
 
@@ -85,7 +99,12 @@ Após o setup, recarregue a extensão em `chrome://extensions`. O status deve ex
 | Aguardar ~0.5s (com Native Host) | Card aparece automaticamente |
 | Clicar no ícone da extensão | Captura manual e feedback imediato |
 | Slider de colunas no cabeçalho | Redimensiona o grid (2–6 colunas) |
-| Clicar em um card | Abre lightbox |
+| Clicar em um card (sem seleção ativa) | Abre lightbox |
+| Checkbox no card | Seleciona o card |
+| Shift+click em outro card | Seleciona intervalo entre os dois |
+| Clicar em card (com seleção ativa) | Alterna seleção do card |
+| **Baixar (n)** | Baixa selecionados: 1 → JPG, vários → ZIP |
+| **Excluir (n)** | Remove os cards selecionados |
 | Scroll no lightbox | Zoom in/out (até 8×) |
 | Arrastar no lightbox (com zoom) | Move a imagem |
 | `←` / `→` ou botões | Navega entre capturas |
@@ -107,7 +126,7 @@ PrtScn
                            └─ popup.js  (storage.onChanged → card renderizado)
 ```
 
-Sem o Native Host, o `popup.js` lê o clipboard diretamente via `navigator.clipboard.read()` quando a popup está em foco.
+Sem o Native Host, o `popup.js` lê o clipboard diretamente via `navigator.clipboard.read()` quando o popup está em foco (botão **Capturar**).
 
 ---
 
@@ -119,7 +138,7 @@ rapidex-extension/
 ├── background.js        # Service Worker — Native Host + offscreen doc
 ├── offscreen.html/js    # Documento offscreen (fallback)
 ├── popup.html           # UI principal
-├── popup.js             # Lógica: render, lightbox, zoom, polling
+├── popup.js             # Lógica: render, lightbox, zoom, seleção, polling
 ├── rapidex_host.py      # Monitor de clipboard (Python + Pillow)
 ├── rapidex_host.bat     # Wrapper para o host nativo no Windows
 ├── setup.ps1            # Instalação do Native Host (Windows)
@@ -140,10 +159,10 @@ rapidex-extension/
 
 ## Segurança
 
-Ver [SECURITY.md](SECURITY.md) para detalhes sobre as defesas implementadas: CSP, bloqueio de SVG, validação de data URLs, proteção contra XSS por storage tampering, limites de DoS e deduplicação por SHA-1.
+Ver [SECURITY.md](SECURITY.md) para detalhes sobre as defesas implementadas: CSP, bloqueio de SVG, validação de data URLs, proteção contra XSS por storage tampering, limites de DoS e deduplicação por hash.
 
 ---
 
 ## Limitação conhecida
 
-O Chrome não permite que extensões leiam o clipboard sem foco do documento — restrição de segurança do browser. O Native Host contorna isso monitorando o clipboard via API do SO (`PIL.ImageGrab.grabclipboard()`). Sem ele, a captura só funciona quando a popup está aberta e em foco.
+O Chrome não permite que extensões leiam o clipboard sem foco do documento — restrição de segurança do browser. O Native Host contorna isso monitorando o clipboard via API do SO (`PIL.ImageGrab.grabclipboard()`). Sem ele, a captura só funciona quando o popup está aberto e em foco.
