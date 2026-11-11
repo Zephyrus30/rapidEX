@@ -77,14 +77,24 @@ applyGridCols(gridCols);
 // ── Seleção ───────────────────────────────────────────────────────────────────
 const btnSelDl  = document.getElementById('btnSelDl');
 const btnSelDel = document.getElementById('btnSelDel');
+const btnSelClr = document.getElementById('btnSelClr');
+const sepSel    = document.getElementById('sepSel');
 
 function updateSelButtons() {
   const n = selectedIds.size;
-  btnSelDl.hidden  = n === 0;
-  btnSelDel.hidden = n === 0;
+  const on = n > 0;
+  btnSelDl.hidden  = !on;
+  btnSelDel.hidden = !on;
+  btnSelClr.hidden = !on;
+  sepSel.hidden    = !on;
   btnSelDl.textContent  = `Baixar (${n})`;
   btnSelDel.textContent = `Excluir (${n})`;
 }
+
+btnSelClr.addEventListener('click', () => {
+  selectedIds.clear();
+  render();
+});
 
 btnSelDel.addEventListener('click', () => {
   captures = captures.filter(c => !selectedIds.has(c.id));
