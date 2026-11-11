@@ -57,6 +57,7 @@ select {
 .btn {
   font: 500 12px 'Segoe UI', sans-serif; padding: 5px 12px; border-radius: 5px;
   cursor: pointer; white-space: nowrap; transition: background .12s, opacity .12s;
+  display: inline-flex; align-items: center; gap: 5px;
 }
 .btn-zip {
   color: var(--accent); background: transparent; border: 1px solid rgba(91,140,247,.3);
@@ -174,9 +175,11 @@ kbd {
   </div>
   <div class="hdr-btns">
     <button class="btn btn-capture" id="btnCapture" title="Capturar da área de transferência">Capturar</button>
+    <span class="hdr-sep"></span>
     <button id="btnTab" title="Abrir em aba" style="background:transparent;border:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:4px;display:flex;align-items:center;" aria-label="Abrir em aba">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
     </button>
+    <span class="hdr-sep"></span>
     <div id="status"><div id="dot"></div><span id="statusTxt">aguardando</span></div>
     <span class="hdr-sep"></span>
     <select id="sortSel">
@@ -192,8 +195,14 @@ kbd {
     <button class="btn btn-sel-del" id="btnSelDel" hidden>Excluir (0)</button>
     <button class="btn btn-sel-clr" id="btnSelClr" hidden title="Desmarcar tudo">&#x2715; seleção</button>
     <span class="hdr-sep"></span>
-    <button class="btn btn-zip" id="btnZip" disabled>Baixar tudo</button>
-    <button class="btn btn-clear" id="btnClear" disabled>Limpar tudo</button>
+    <button class="btn btn-zip" id="btnZip" disabled>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Baixar tudo
+    </button>
+    <button class="btn btn-clear" id="btnClear" disabled>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      Limpar tudo
+    </button>
   </div>
 </header>
 
