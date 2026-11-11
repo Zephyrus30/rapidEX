@@ -138,6 +138,12 @@ rapidex-extension/
 
 ---
 
+## Segurança
+
+Ver [SECURITY.md](SECURITY.md) para detalhes sobre as defesas implementadas: CSP, bloqueio de SVG, validação de data URLs, proteção contra XSS por storage tampering, limites de DoS e deduplicação por SHA-1.
+
+---
+
 ## Limitação conhecida
 
 O Chrome não permite que extensões leiam o clipboard sem foco do documento — restrição de segurança do browser. O Native Host contorna isso monitorando o clipboard via API do SO (`PIL.ImageGrab.grabclipboard()`). Sem ele, a captura só funciona quando a popup está aberta e em foco.
